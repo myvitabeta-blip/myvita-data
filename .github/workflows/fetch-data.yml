@@ -1,0 +1,28 @@
+name: Fetch MyVita Data
+
+# This tells GitHub to run this script every hour, and allows manual clicks
+on:
+  schedule:
+    - cron: '0 * * * *' 
+  workflow_dispatch: 
+
+jobs:
+  update-csv:
+    runs-on: ubuntu-latest
+    
+    # We are asking GitHub's server to pretend it's a normal web browser
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download the Government CSV
+        run: |
+          curl -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -o urgences.csv "https://www.donneesquebec.ca/recherche/dataset/7432f648-7504-4901-b50a-174830291931/resource/29f39bc2-a42e-40ec-946d-9b0d2d2a45d0/download/statistiques-urgences-etablissements.csv"
+
+      - name: Save and Push to GitHub
+        run: |
+          git config user.name "MyVita Bot"
+          git config user.email "bot@myvita.local"
+          git add urgences.csv
+          git commit -m "Hourly data refresh" || echo "No changes to commit"
+          git push
