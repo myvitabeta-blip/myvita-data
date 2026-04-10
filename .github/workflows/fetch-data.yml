@@ -1,6 +1,5 @@
 name: Fetch MyVita Data
 
-# This tells GitHub to run this script every hour, and allows manual clicks
 on:
   schedule:
     - cron: '0 * * * *' 
@@ -9,11 +8,9 @@ on:
 jobs:
   update-csv:
     runs-on: ubuntu-latest
-    
-    # We are asking GitHub's server to pretend it's a normal web browser
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download the Government CSV
         run: |
@@ -24,5 +21,5 @@ jobs:
           git config user.name "MyVita Bot"
           git config user.email "bot@myvita.local"
           git add urgences.csv
-          git commit -m "Hourly data refresh" || echo "No changes to commit"
+          git commit -m "Hourly data refresh" || echo "No changes"
           git push
