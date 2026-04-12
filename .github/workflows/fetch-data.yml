@@ -1,25 +1,33 @@
-name: Fetch MyVita Data
+name: Update Hospital Data
 
 on:
   schedule:
-    - cron: '0 * * * *' 
-  workflow_dispatch: 
+    - cron: '*/15 * * * *' # Runs every 15 minutes
+  workflow_dispatch: # Allows you to run it manually
 
 jobs:
-  update-csv:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Download the Government CSV
-        run: |
-          curl -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -o urgences.csv "https://www.donneesquebec.ca/recherche/dataset/7432f648-7504-4901-b50a-174830291931/resource/29f39bc2-a42e-40ec-946d-9b0d2d2a45d0/download/statistiques-urgences-etablissements.csv"
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-      - name: Save and Push to GitHub
+      - name: Install Dependencies
         run: |
-          git config user.name "MyVita Bot"
-          git config user.email "bot@myvita.local"
-          git add urgences.csv
-          git commit -m "Hourly data refresh" || echo "No changes"
+          pip install pandas requests
+
+      - name: Run Scraper
+        run: python scraper.py  # <--- MAKE SURE THIS MATCHES YOUR FILENAME
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "action@github.com"
+          git add urgences_live.csv
+          git commit -m "Update data" || exit 0
           git push
